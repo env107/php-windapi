@@ -1,0 +1,13 @@
+{
+    "name": "winding_lib/php-windapi",
+    "description": "一个基于PHP的扩展库，它提供API的验证签名的接口以及操控Session会话的控制驱动",
+    "license": "Apache-2.0",
+    "type": "library",
+    "authors": [
+        {
+            "name": "env107",
+            "email": "env107@126.com"
+        }
+    ],
+    "require": {}
+}
