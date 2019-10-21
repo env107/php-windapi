@@ -1,5 +1,5 @@
 {
-    "name": "wind/windapi",
+    "name": "winding_lib/php-windapi",
     "description": "windApi is WindApi is a Api framework for php,it integate signature checking and Session's controller.",
     "type": "library",
     "authors": [
