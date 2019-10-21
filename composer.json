@@ -1,0 +1,12 @@
+{
+    "name": "wind/windapi",
+    "description": "windApi is WindApi is a Api framework for php,it integate signature checking and Session's controller.",
+    "type": "library",
+    "authors": [
+        {
+            "name": "env107",
+            "email": "env107@126.com"
+        }
+    ],
+    "require": {}
+}
