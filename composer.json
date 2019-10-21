@@ -9,5 +9,10 @@
             "email": "env107@126.com"
         }
     ],
+    "autoload":{
+        "psr-4" : {
+            "WindApi\\" : "src/WindApi/"
+        }
+    },
     "require": {}
 }
