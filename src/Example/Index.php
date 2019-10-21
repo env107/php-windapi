@@ -8,7 +8,7 @@ use WindApi\Loader;
 use WindApi\exceptions\ParserException;
 use WindApi\exceptions\SessionRuntimeException;
 use WindApi\exceptions\SessionTimeoutException;
-use WindApi\request\Tp5ApiRequestProvider;
+use WindApi\request\DefaultRequestProvider;
 use WindApi\session\ApiSession;
 use WindApi\session\SessionManager;
 
@@ -51,7 +51,7 @@ class Index
             @ob_clean();
 
             //1.验证签名数据
-            $requestProvider = new Tp5ApiRequestProvider();
+            $requestProvider = new DefaultRequestProvider();
             $package = ApiParser::run(
                 $requestProvider
             );
