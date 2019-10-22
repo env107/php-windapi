@@ -12,7 +12,7 @@ use WindApi\request\DefaultRequestProvider;
 use WindApi\session\ApiSession;
 use WindApi\session\SessionManager;
 
-define("API_INIT",false);
+define("API_INIT",true);
 
 
 class Index
@@ -23,22 +23,34 @@ class Index
      */
     public static function virtualRequest(){
         $authorization = [
-            'session_id' => '380853FABE3930471FA3',
-            'host' => 'http://127.0.0.1:7001',
+            'session_id' => '',
+            'host' => urlencode('http://localhost:7011'),
             'method' => 'get',
-            'query' => json_encode([
-                urlencode("name") => urlencode("env107"),
-                urlencode("title") => urlencode("windapi")
-            ]),
+            'query' => self::setQuery([]),
             'client_time' => time(),
             'version' => '1.0'
         ];
         $jm = $authorization['host']."#{$authorization['method']}?query=".sha1($authorization['query']);
         $authorization['signature'] = hash_hmac("sha256",$jm,$authorization['client_time']);
         $_SERVER['HTTP_AUTHORIZATION'] = base64_encode(json_encode($authorization));
-        $_SERVER['HTTP_ORIGIN'] = "http://127.0.0.1:7001";
+        $_SERVER['HTTP_ORIGIN'] = "http://localhost:7011";
         $_SERVER['HTTP_API_INIT'] = API_INIT ? 1 : 0;
         ini_set("display_errors","on");
+    }
+
+    public static function setQuery($query){
+        $sort_query = [];
+        if(empty($query)){
+            return "";
+        }
+        //1.将键进行字典排序
+        $keys = array_keys($query);
+        sort($keys);
+        //2.将键和键值进行uri编码
+        foreach ($keys as $key){
+            array_push($sort_query,urlencode($key)."=".urlencode($query[$key]));
+        }
+        return implode("&",$sort_query);
     }
 
 

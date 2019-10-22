@@ -64,15 +64,19 @@ class AuthApiChecker extends ApiChecker {
         if(ApiParser::parseApiVersion($package['version']) != ApiParser::$version) {
             throw new CheckerException("签名版本不正确");
         }
-        if($package['host'] !== $header['origin']) {
-            throw new CheckerException("签名请求服务器不正确");
+        if(!isset($header['origin'])){
+            throw new CheckerException("无法获取访问来源");
+        }
+
+        if($package['host'] !== urlencode($header['origin'])) {
+            throw new CheckerException("访问来源信息不正确");
         }
         if(strtolower($package['method']) !== $requestProvider->getRequestMethod()) {
-            throw new CheckerException("签名请求方法不正确");
+            throw new CheckerException("请求方法不正确");
         }
 
         if($package['client_time'] - ApiParser::$server_time > 1){
-            throw new CheckerException("签名数据已过期，请刷新");
+            throw new CheckerException("签名有效期超时");
         }
         return true;
     }
@@ -88,6 +92,7 @@ class AuthApiChecker extends ApiChecker {
         $server_package = $this->_buildServerPackage($client_package,$requestProvider);
         $server_package = $this->pack($this->_queuePackage($server_package));
         $client_package = $this->pack($this->_queuePackage($client_package));
+
         if($server_package !== $client_package) {
             throw new CheckerException("客户端签名数据被不完整");
         }
@@ -103,10 +108,10 @@ class AuthApiChecker extends ApiChecker {
     private function _buildServerPackage($package,RequestProvider $requestProvider){
         $header = $requestProvider->getHeaderInfo();
         $session_id = $this->_getKey($package,"session_id");
-        $host = $header['origin'];
+        $host = urlencode($header['origin']);
         $method = $requestProvider->getRequestMethod();
-        $query = $this->_getJsonEncodeQuery($requestProvider->getQueryData());
-        $client_time = $package['client_time'];
+        $query = $this->_getEncodeQueryString($requestProvider->getQueryData());
+        $client_time = strval($package['client_time']);
         $version = ApiParser::reverseApiVersion();
         $signature = $this->_buildServerQuerySignature($requestProvider,$client_time);
         return array_combine($this->keySort,[$session_id,$host,$method,$query,$client_time,$version,$signature]);
@@ -142,12 +147,19 @@ class AuthApiChecker extends ApiChecker {
      * @param array $query 未进行编码的query数组
      * @return string
      */
-    private function _getJsonEncodeQuery(array $query){
-        $data = [];
-        foreach ($query as $key => $value){
-            $data[urlencode($key)] = urlencode($value);
+    private function _getEncodeQueryString(array $query){
+        $sort_query = [];
+        if(empty($query)){
+            return "";
         }
-        return json_encode($data);
+        //1.将键进行字典排序
+        $keys = array_keys($query);
+        sort($keys);
+        //2.将键和键值进行uri编码
+        foreach ($keys as $key){
+            array_push($sort_query,urlencode($key)."=".urlencode($query[$key]));
+        }
+        return implode("&",$sort_query);
     }
 
 
@@ -160,12 +172,8 @@ class AuthApiChecker extends ApiChecker {
     private function _buildServerQuerySignature(RequestProvider $requestProvider,$server_time){
         $query = $requestProvider->getQueryData();
         $header = $requestProvider->getHeaderInfo();
-        $encodeData = [];
-        foreach ($query as $key => $value){
-            $encodeData[urlencode($key)] = urlencode($value);
-        }
-        $querySha = sha1(json_encode($encodeData));
-        $queryUrl = $header['origin']."#".$requestProvider->getRequestMethod()."?query=".$querySha;
+        $querySha = sha1($this->_getEncodeQueryString($query));
+        $queryUrl = urlencode($header['origin'])."#".$requestProvider->getRequestMethod()."?query=".$querySha;
         return hash_hmac("sha256",$queryUrl,$server_time);
     }
 
