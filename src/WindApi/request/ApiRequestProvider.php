@@ -41,6 +41,11 @@ abstract class ApiRequestProvider implements RequestProvider
                 $header[strtolower(substr($key,5))] = $value;
             }
         }
+        //获取本地访问来源
+        if(!isset($header['origin'])) {
+            $protocol = explode("/",$_SERVER['SERVER_PROTOCOL']);
+            $header['origin'] = strtolower($protocol[0])."://".$_SERVER['HTTP_HOST'];
+        }
         return $header;
     }
 
