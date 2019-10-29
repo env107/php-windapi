@@ -165,12 +165,12 @@ class MysqlSessionDriver implements SessionExtract
      */
     private function _removeSession($session_id){
         if(!is_array($session_id)) {
-            $sql = "DELETE FROM {$this->options['session_table']} WHERE `session_id` = :session_id";
+            $sql = "DELETE FROM {$this->options['session_table']} WHERE session_id = :session_id";
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(":session_id",$session_id,\PDO::PARAM_STR);
             $result = $stmt->execute();
         } else {
-            $sql = "DELETE FROM {$this->options['session_table']} WHERE `session_id` in (".implode(",",$session_id).")";
+            $sql = "DELETE FROM {$this->options['session_table']} WHERE session_id in (".implode(",",$session_id).")";
             $stmt = $this->db->prepare($sql);
             $result = $stmt->execute();
         }
