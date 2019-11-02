@@ -170,7 +170,10 @@ class MysqlSessionDriver implements SessionExtract
             $stmt->bindParam(":session_id",$session_id,\PDO::PARAM_STR);
             $result = $stmt->execute();
         } else {
-            $sql = "DELETE FROM {$this->options['session_table']} WHERE session_id in (".implode(",",$session_id).")";
+            $scope = array_map(function($value){
+                return "'{$value}'";
+            },$session_id);
+            $sql = "DELETE FROM {$this->options['session_table']} WHERE session_id in (".implode(",",$scope).")";
             $stmt = $this->db->prepare($sql);
             $result = $stmt->execute();
         }
