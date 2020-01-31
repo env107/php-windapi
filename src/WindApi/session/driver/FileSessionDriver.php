@@ -69,7 +69,7 @@ class FileSessionDriver implements SessionExtract
         if(empty($data)) {
             return false;
         }
-        return file_put_contents($file,json_encode($data));
+        return file_put_contents($file,json_encode($data)) > 0 ? true : false;
     }
 
     /**

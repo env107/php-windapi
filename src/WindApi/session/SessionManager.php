@@ -247,4 +247,14 @@ class SessionManager implements \SessionHandlerInterface
         }
         return  true;
     }
+
+
+    /**
+     * 判断会话状态
+     * @return bool
+     */
+    public static function isActive()
+    {
+        return session_status() == PHP_SESSION_ACTIVE;
+    }
 }

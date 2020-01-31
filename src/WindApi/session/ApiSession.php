@@ -51,11 +51,17 @@ class ApiSession
      * 如果调用该方法用于会话之间的切换，请先调用ApiSession::save()方法将当前会话写入并完成再调用此方法
      * @param $session_id
      * 会话ID，请保证会话在当前系统中为唯一
-     * @return array $_SESSION 返回当前会话
+     * @return array | bool $_SESSION 返回当前会话,如果失败则返回false
      */
     public static function load($session_id){
-        session_id($session_id);
+        if(SessionManager::isActive()) {
+            self::save();
+        }
+        @session_id($session_id);
         @session_start();
+        if(!SessionManager::isActive()){
+            return false;
+        }
         return $_SESSION;
     }
 
@@ -78,7 +84,11 @@ class ApiSession
      * @return bool
      */
     public static function destroy(){
-        return session_destroy();
+        if(SessionManager::isActive()){
+            @session_unset();
+            @session_destroy();
+        }
+        return true;
     }
 
     /**
